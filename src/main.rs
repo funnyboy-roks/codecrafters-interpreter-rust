@@ -10,6 +10,8 @@ enum Token {
     EOF,
     LParen,
     RParen,
+    LBrace,
+    RBrace,
     Var,
     Ident(String),
     String(String),
@@ -22,6 +24,8 @@ impl Display for Token {
             Token::EOF => "EOF",
             Token::LParen => "LEFT_PAREN",
             Token::RParen => "RIGHT_PAREN",
+            Token::LBrace => "LEFT_BRACE",
+            Token::RBrace => "RIGHT_BRACE",
             Token::Var => "VAR",
             Token::Ident(_) => "IDENTIFIER",
             Token::String(_) => "STRING",
@@ -32,6 +36,8 @@ impl Display for Token {
             Token::EOF => "".to_string(),
             Token::LParen => "(".to_string(),
             Token::RParen => ")".to_string(),
+            Token::LBrace => "{".to_string(),
+            Token::RBrace => "}".to_string(),
             Token::Var => "var".to_string(),
             Token::Ident(s) => s.to_string(),
             Token::String(s) => format!(r#""{}""#, s),
@@ -79,6 +85,8 @@ where
             return match c {
                 '(' => Ok(Token::LParen),
                 ')' => Ok(Token::RParen),
+                '{' => Ok(Token::LBrace),
+                '}' => Ok(Token::RBrace),
                 '\n' => continue,
                 _ => {
                     panic!("Unexpected token: {:?}", c);
