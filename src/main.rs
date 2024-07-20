@@ -25,6 +25,10 @@ enum Token {
     EqualEqual,
     Bang,
     BangEqual,
+    Less,
+    LessEqual,
+    Greater,
+    GreaterEqual,
 }
 
 impl Display for Token {
@@ -48,6 +52,10 @@ impl Display for Token {
             Token::EqualEqual => "EQUAL_EQUAL",
             Token::Bang => "BANG",
             Token::BangEqual => "BANG_EQUAL",
+            Token::Less => "LESS",
+            Token::LessEqual => "LESS_EQUAL",
+            Token::Greater => "GREATER",
+            Token::GreaterEqual => "GREATER_EQUAL",
         };
 
         let lexeme = match self {
@@ -69,6 +77,10 @@ impl Display for Token {
             Token::EqualEqual => "==".to_string(),
             Token::Bang => "!".to_string(),
             Token::BangEqual => "!=".to_string(),
+            Token::Less => "<".to_string(),
+            Token::LessEqual => "<=".to_string(),
+            Token::Greater => ">".to_string(),
+            Token::GreaterEqual => ">=".to_string(),
         };
 
         let literal = match self {
@@ -146,6 +158,20 @@ impl Lexer {
                         Token::BangEqual
                     }
                     _ => Token::Bang,
+                }),
+                '<' => Ok(match self.peek_char() {
+                    Some('=') => {
+                        self.read_char();
+                        Token::LessEqual
+                    }
+                    _ => Token::Less,
+                }),
+                '>' => Ok(match self.peek_char() {
+                    Some('=') => {
+                        self.read_char();
+                        Token::GreaterEqual
+                    }
+                    _ => Token::Greater,
                 }),
                 '\n' => {
                     self.line += 1;
