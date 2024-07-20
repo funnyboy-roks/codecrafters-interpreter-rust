@@ -71,6 +71,7 @@ impl Display for Token {
 struct Lexer<'a, R> {
     reader: &'a mut R,
     line: usize,
+    error: bool,
     done: bool,
 }
 
@@ -79,6 +80,7 @@ impl<'a, R> Lexer<'a, R> {
         Self {
             reader: r,
             line: 1,
+            error: false,
             done: false,
         }
     }
@@ -116,6 +118,7 @@ where
                 }
                 _ => {
                     eprintln!("[line {}] Error: Unexpected Character: {}", self.line, c);
+                    self.error = true;
                     continue;
                 }
             };
@@ -152,10 +155,14 @@ fn main() -> anyhow::Result<()> {
             let file = File::open(filename)?;
             let mut file = BufReader::new(file);
 
-            let lexer = Lexer::new(&mut file);
+            let mut lexer = Lexer::new(&mut file);
 
-            for tok in lexer {
+            for tok in &mut lexer {
                 println!("{}", tok);
+            }
+
+            if lexer.error {
+                std::process::exit(65);
             }
         }
         _ => {
