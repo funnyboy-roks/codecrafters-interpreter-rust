@@ -117,7 +117,7 @@ where
                     continue;
                 }
                 _ => {
-                    eprintln!("[line {}] Error: Unexpected Character: {}", self.line, c);
+                    eprintln!("[line {}] Error: Unexpected character: {}", self.line, c);
                     self.error = true;
                     continue;
                 }
