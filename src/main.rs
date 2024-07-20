@@ -23,6 +23,8 @@ enum Token {
     Minus,
     Equal,
     EqualEqual,
+    Bang,
+    BangEqual,
 }
 
 impl Display for Token {
@@ -44,6 +46,8 @@ impl Display for Token {
             Token::Minus => "MINUS",
             Token::Equal => "EQUAL",
             Token::EqualEqual => "EQUAL_EQUAL",
+            Token::Bang => "BANG",
+            Token::BangEqual => "BANG_EQUAL",
         };
 
         let lexeme = match self {
@@ -63,6 +67,8 @@ impl Display for Token {
             Token::Minus => "-".to_string(),
             Token::Equal => "=".to_string(),
             Token::EqualEqual => "==".to_string(),
+            Token::Bang => "!".to_string(),
+            Token::BangEqual => "!=".to_string(),
         };
 
         let literal = match self {
@@ -133,6 +139,13 @@ impl Lexer {
                         Token::EqualEqual
                     }
                     _ => Token::Equal,
+                }),
+                '!' => Ok(match self.peek_char() {
+                    Some('=') => {
+                        self.read_char();
+                        Token::BangEqual
+                    }
+                    _ => Token::Bang,
                 }),
                 '\n' => {
                     self.line += 1;
