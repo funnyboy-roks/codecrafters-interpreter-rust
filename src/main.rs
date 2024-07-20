@@ -70,6 +70,7 @@ impl Display for Token {
 
 struct Lexer<'a, R> {
     reader: &'a mut R,
+    line: usize,
     done: bool,
 }
 
@@ -77,6 +78,7 @@ impl<'a, R> Lexer<'a, R> {
     fn new(r: &'a mut R) -> Self {
         Self {
             reader: r,
+            line: 1,
             done: false,
         }
     }
@@ -108,9 +110,13 @@ where
                 ',' => Ok(Token::Comma),
                 '+' => Ok(Token::Plus),
                 '-' => Ok(Token::Minus),
-                '\n' => continue,
+                '\n' => {
+                    self.line += 1;
+                    continue;
+                }
                 _ => {
-                    panic!("Unexpected token: {:?}", c);
+                    eprintln!("[line {}] Error: Unexpected Character: {}", self.line, c);
+                    continue;
                 }
             };
         }
