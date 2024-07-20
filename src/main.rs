@@ -21,6 +21,8 @@ enum Token {
     Comma,
     Plus,
     Minus,
+    Equal,
+    EqualEqual,
 }
 
 impl Display for Token {
@@ -40,6 +42,8 @@ impl Display for Token {
             Token::Comma => "COMMA",
             Token::Plus => "PLUS",
             Token::Minus => "MINUS",
+            Token::Equal => "EQUAL",
+            Token::EqualEqual => "EQUAL_EQUAL",
         };
 
         let lexeme = match self {
@@ -57,6 +61,8 @@ impl Display for Token {
             Token::Comma => ",".to_string(),
             Token::Plus => "+".to_string(),
             Token::Minus => "-".to_string(),
+            Token::Equal => "=".to_string(),
+            Token::EqualEqual => "==".to_string(),
         };
 
         let literal = match self {
@@ -68,17 +74,19 @@ impl Display for Token {
     }
 }
 
-struct Lexer<'a, R> {
-    reader: &'a mut R,
+struct Lexer {
+    string: Vec<char>,
+    index: usize,
     line: usize,
     error: bool,
     done: bool,
 }
 
-impl<'a, R> Lexer<'a, R> {
-    fn new(r: &'a mut R) -> Self {
+impl Lexer {
+    fn new(s: &str) -> Self {
         Self {
-            reader: r,
+            string: s.chars().collect(),
+            index: 0,
             line: 1,
             error: false,
             done: false,
@@ -86,20 +94,27 @@ impl<'a, R> Lexer<'a, R> {
     }
 }
 
-impl<'a, R> Lexer<'a, R>
-where
-    R: BufRead,
-{
+impl Lexer {
+    fn peek_char(&mut self) -> Option<char> {
+        if self.index >= self.string.len() {
+            None
+        } else {
+            Some(self.string[self.index])
+        }
+    }
+
+    fn read_char(&mut self) -> Option<char> {
+        let out = self.peek_char();
+        self.index += 1;
+        out
+    }
+
     fn read_token(&mut self) -> anyhow::Result<Token> {
-        let mut buf = [0u8; 1];
         loop {
-            let count = self.reader.read(&mut buf)?;
-            if count == 0 {
+            let Some(c) = self.read_char() else {
                 self.done = true;
                 return Ok(Token::EOF);
-            }
-
-            let c = char::from_u32(buf[0] as u32).unwrap();
+            };
 
             return match c {
                 '(' => Ok(Token::LParen),
@@ -112,6 +127,13 @@ where
                 ',' => Ok(Token::Comma),
                 '+' => Ok(Token::Plus),
                 '-' => Ok(Token::Minus),
+                '=' => Ok(match self.peek_char() {
+                    Some('=') => {
+                        self.read_char();
+                        Token::EqualEqual
+                    }
+                    _ => Token::Equal,
+                }),
                 '\n' => {
                     self.line += 1;
                     continue;
@@ -126,10 +148,7 @@ where
     }
 }
 
-impl<'a, R> Iterator for Lexer<'a, R>
-where
-    R: BufRead,
-{
+impl Iterator for Lexer {
     type Item = Token;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -152,10 +171,9 @@ fn main() -> anyhow::Result<()> {
 
     match command.as_str() {
         "tokenize" => {
-            let file = File::open(filename)?;
-            let mut file = BufReader::new(file);
+            let file = fs::read_to_string(filename)?;
 
-            let mut lexer = Lexer::new(&mut file);
+            let mut lexer = Lexer::new(&file);
 
             for tok in &mut lexer {
                 println!("{}", tok);
