@@ -16,6 +16,11 @@ enum Token {
     Ident(String),
     String(String),
     Semicolon,
+    Star,
+    Dot,
+    Comma,
+    Plus,
+    Minus,
 }
 
 impl Display for Token {
@@ -30,6 +35,11 @@ impl Display for Token {
             Token::Ident(_) => "IDENTIFIER",
             Token::String(_) => "STRING",
             Token::Semicolon => "SEMICOLON",
+            Token::Star => "STAR",
+            Token::Dot => "DOT",
+            Token::Comma => "COMMA",
+            Token::Plus => "PLUS",
+            Token::Minus => "MINUS",
         };
 
         let lexeme = match self {
@@ -42,6 +52,11 @@ impl Display for Token {
             Token::Ident(s) => s.to_string(),
             Token::String(s) => format!(r#""{}""#, s),
             Token::Semicolon => ";".to_string(),
+            Token::Star => "*".to_string(),
+            Token::Dot => ".".to_string(),
+            Token::Comma => ",".to_string(),
+            Token::Plus => "+".to_string(),
+            Token::Minus => "-".to_string(),
         };
 
         let literal = match self {
@@ -87,6 +102,11 @@ where
                 ')' => Ok(Token::RParen),
                 '{' => Ok(Token::LBrace),
                 '}' => Ok(Token::RBrace),
+                '*' => Ok(Token::Star),
+                '.' => Ok(Token::Dot),
+                ',' => Ok(Token::Comma),
+                '+' => Ok(Token::Plus),
+                '-' => Ok(Token::Minus),
                 '\n' => continue,
                 _ => {
                     panic!("Unexpected token: {:?}", c);
