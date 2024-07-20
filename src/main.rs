@@ -102,6 +102,7 @@ where
                 ')' => Ok(Token::RParen),
                 '{' => Ok(Token::LBrace),
                 '}' => Ok(Token::RBrace),
+                ';' => Ok(Token::Semicolon),
                 '*' => Ok(Token::Star),
                 '.' => Ok(Token::Dot),
                 ',' => Ok(Token::Comma),
