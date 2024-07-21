@@ -181,7 +181,8 @@ impl Lexer {
                     _ => Token::Greater,
                 }),
                 '/' => Ok(match self.peek_char() {
-                    Some('/') if self.column == 1 => {
+                    Some('/') => {
+                        // (///Unicode:£§᯽☺♣)
                         while let Some(c) = self.read_char() {
                             if c == '\n' {
                                 break;
