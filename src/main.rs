@@ -29,6 +29,7 @@ enum Token {
     LessEqual,
     Greater,
     GreaterEqual,
+    Slash,
 }
 
 impl Display for Token {
@@ -56,6 +57,7 @@ impl Display for Token {
             Token::LessEqual => "LESS_EQUAL",
             Token::Greater => "GREATER",
             Token::GreaterEqual => "GREATER_EQUAL",
+            Token::Slash => "SLASH",
         };
 
         let lexeme = match self {
@@ -81,6 +83,7 @@ impl Display for Token {
             Token::LessEqual => "<=".to_string(),
             Token::Greater => ">".to_string(),
             Token::GreaterEqual => ">=".to_string(),
+            Token::Slash => "/".to_string(),
         };
 
         let literal = match self {
@@ -96,6 +99,7 @@ struct Lexer {
     string: Vec<char>,
     index: usize,
     line: usize,
+    column: usize,
     error: bool,
     done: bool,
 }
@@ -106,6 +110,7 @@ impl Lexer {
             string: s.chars().collect(),
             index: 0,
             line: 1,
+            column: 0,
             error: false,
             done: false,
         }
@@ -133,6 +138,8 @@ impl Lexer {
                 self.done = true;
                 return Ok(Token::EOF);
             };
+
+            self.column += 1;
 
             return match c {
                 '(' => Ok(Token::LParen),
@@ -173,8 +180,21 @@ impl Lexer {
                     }
                     _ => Token::Greater,
                 }),
+                '/' => Ok(match self.peek_char() {
+                    Some('/') if self.column == 1 => {
+                        while let Some(c) = self.read_char() {
+                            if c == '\n' {
+                                break;
+                            }
+                        }
+                        self.line += 1;
+                        continue;
+                    }
+                    _ => Token::Greater,
+                }),
                 '\n' => {
                     self.line += 1;
+                    self.column = 0;
                     continue;
                 }
                 _ => {
