@@ -67,9 +67,9 @@ enum Token {
     While,
 }
 
-impl Display for Token {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let token_type = match self {
+impl Token {
+    fn token_type(&self) -> &'static str {
+        match self {
             Token::EOF => "EOF",
             Token::LParen => "LEFT_PAREN",
             Token::RParen => "RIGHT_PAREN",
@@ -109,9 +109,10 @@ impl Display for Token {
             Token::True => "TRUE",
             Token::Var => "VAR",
             Token::While => "WHILE",
-        };
-
-        let lexeme = match self {
+        }
+    }
+    fn lexeme(&self) -> String {
+        match self {
             Token::EOF => "".to_string(),
             Token::LParen => "(".to_string(),
             Token::RParen => ")".to_string(),
@@ -151,15 +152,27 @@ impl Display for Token {
             Token::True => "true".to_string(),
             Token::Var => "var".to_string(),
             Token::While => "while".to_string(),
-        };
+        }
+    }
 
-        let literal = match self {
+    fn literal(&self) -> String {
+        match self {
             Token::String(s) => s.to_string(),
             Token::Number(n, _) => format!("{:?}", n),
             _ => "null".to_string(),
-        };
+        }
+    }
+}
 
-        write!(f, "{} {} {}", token_type, lexeme, literal)
+impl Display for Token {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{} {} {}",
+            self.token_type(),
+            self.lexeme(),
+            self.literal()
+        )
     }
 }
 
@@ -387,18 +400,22 @@ fn main() -> anyhow::Result<()> {
     let command = &args[1];
     let filename = &args[2];
 
+    let file = fs::read_to_string(filename)?;
+    let mut lexer = Lexer::new(&file);
+
     match command.as_str() {
         "tokenize" => {
-            let file = fs::read_to_string(filename)?;
-
-            let mut lexer = Lexer::new(&file);
-
             for tok in &mut lexer {
                 println!("{}", tok);
             }
 
             if lexer.error {
                 std::process::exit(65);
+            }
+        }
+        "parse" => {
+            for tok in &mut lexer.filter(|m| !matches!(m, Token::EOF)) {
+                println!("{}", tok.lexeme());
             }
         }
         _ => {
