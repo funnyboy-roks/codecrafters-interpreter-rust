@@ -165,6 +165,27 @@ impl Lexer {
         }
     }
 
+    fn read_ident(&mut self) -> Option<String> {
+        let start = self.index;
+        loop {
+            if let Some('a'..='z' | 'A'..='Z' | '0'..='9' | '_') = self.peek_char() {
+                self.read_char();
+            } else {
+                break;
+            }
+        }
+
+        if start == self.index {
+            None
+        } else {
+            if self.string[self.index - 1] == '.' {
+                self.index -= 1;
+            }
+            let chars = &self.string[start..self.index];
+            Some(chars.iter().collect())
+        }
+    }
+
     fn read_token(&mut self) -> anyhow::Result<Token> {
         'main_lex: loop {
             let Some(c) = self.read_char() else {
@@ -247,6 +268,14 @@ impl Lexer {
                     self.index -= 1;
                     if let Some(num) = self.read_number() {
                         Ok(Token::Number(num.parse()?, num))
+                    } else {
+                        continue;
+                    }
+                }
+                'a'..='z' | 'A'..='Z' | '_' => {
+                    self.index -= 1;
+                    if let Some(s) = self.read_ident() {
+                        Ok(Token::Ident(s))
                     } else {
                         continue;
                     }
