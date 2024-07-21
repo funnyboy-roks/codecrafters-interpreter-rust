@@ -182,7 +182,6 @@ impl Lexer {
                 }),
                 '/' => Ok(match self.peek_char() {
                     Some('/') => {
-                        // (///Unicode:£§᯽☺♣)
                         while let Some(c) = self.read_char() {
                             if c == '\n' {
                                 break;
@@ -193,6 +192,23 @@ impl Lexer {
                     }
                     _ => Token::Slash,
                 }),
+                '"' => {
+                    //
+                    let start = self.index;
+                    loop {
+                        if let Some(c) = self.read_char() {
+                            if c == '"' {
+                                break;
+                            }
+                        } else {
+                            eprintln!("[line {}] Error: Unterminated string.", self.line);
+                            continue;
+                        }
+                    }
+                    let chars = &self.string[start..self.index - 1];
+
+                    Ok(Token::String(chars.iter().collect()))
+                }
                 '\n' => {
                     self.line += 1;
                     self.column = 0;
