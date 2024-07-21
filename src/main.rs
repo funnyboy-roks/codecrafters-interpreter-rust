@@ -1,11 +1,30 @@
 use std::env;
 use std::fmt::{Display, Formatter};
-use std::fs::{self, File};
-use std::io::{self, Write};
-use std::io::{BufRead, BufReader};
+use std::fs;
 
 use anyhow::bail;
+use phf::phf_map;
 
+static KEYWORDS: phf::Map<&'static str, Token> = phf_map! {
+    "and" => Token::And,
+    "class" => Token::Class,
+    "else" => Token::Else,
+    "false" => Token::False,
+    "for" => Token::For,
+    "fun" => Token::Fun,
+    "if" => Token::If,
+    "nil" => Token::Nil,
+    "or" => Token::Or,
+    "print" => Token::Print,
+    "return" => Token::Return,
+    "super" => Token::Super,
+    "this" => Token::This,
+    "true" => Token::True,
+    "var" => Token::Var,
+    "while" => Token::While,
+};
+
+#[derive(Clone)]
 enum Token {
     EOF,
     LParen,
@@ -31,6 +50,21 @@ enum Token {
     GreaterEqual,
     Slash,
     Number(f64, String),
+    And,
+    Class,
+    Else,
+    False,
+    For,
+    Fun,
+    If,
+    Nil,
+    Or,
+    Print,
+    Return,
+    Super,
+    This,
+    True,
+    While,
 }
 
 impl Display for Token {
@@ -41,7 +75,6 @@ impl Display for Token {
             Token::RParen => "RIGHT_PAREN",
             Token::LBrace => "LEFT_BRACE",
             Token::RBrace => "RIGHT_BRACE",
-            Token::Var => "VAR",
             Token::Ident(_) => "IDENTIFIER",
             Token::String(_) => "STRING",
             Token::Semicolon => "SEMICOLON",
@@ -60,6 +93,22 @@ impl Display for Token {
             Token::GreaterEqual => "GREATER_EQUAL",
             Token::Slash => "SLASH",
             Token::Number(_, _) => "NUMBER",
+            Token::And => "AND",
+            Token::Class => "CLASS",
+            Token::Else => "ELSE",
+            Token::False => "FALSE",
+            Token::For => "FOR",
+            Token::Fun => "FUN",
+            Token::If => "IF",
+            Token::Nil => "NIL",
+            Token::Or => "OR",
+            Token::Print => "PRINT",
+            Token::Return => "RETURN",
+            Token::Super => "SUPER",
+            Token::This => "THIS",
+            Token::True => "TRUE",
+            Token::Var => "VAR",
+            Token::While => "WHILE",
         };
 
         let lexeme = match self {
@@ -68,7 +117,6 @@ impl Display for Token {
             Token::RParen => ")".to_string(),
             Token::LBrace => "{".to_string(),
             Token::RBrace => "}".to_string(),
-            Token::Var => "var".to_string(),
             Token::Ident(s) => s.to_string(),
             Token::String(s) => format!(r#""{}""#, s),
             Token::Semicolon => ";".to_string(),
@@ -87,6 +135,22 @@ impl Display for Token {
             Token::GreaterEqual => ">=".to_string(),
             Token::Slash => "/".to_string(),
             Token::Number(_, s) => s.to_string(),
+            Token::And => "and".to_string(),
+            Token::Class => "class".to_string(),
+            Token::Else => "else".to_string(),
+            Token::False => "false".to_string(),
+            Token::For => "for".to_string(),
+            Token::Fun => "fun".to_string(),
+            Token::If => "if".to_string(),
+            Token::Nil => "nil".to_string(),
+            Token::Or => "or".to_string(),
+            Token::Print => "print".to_string(),
+            Token::Return => "return".to_string(),
+            Token::Super => "super".to_string(),
+            Token::This => "this".to_string(),
+            Token::True => "true".to_string(),
+            Token::Var => "var".to_string(),
+            Token::While => "while".to_string(),
         };
 
         let literal = match self {
@@ -275,7 +339,11 @@ impl Lexer {
                 'a'..='z' | 'A'..='Z' | '_' => {
                     self.index -= 1;
                     if let Some(s) = self.read_ident() {
-                        Ok(Token::Ident(s))
+                        if let Some(kw) = KEYWORDS.get(&s) {
+                            Ok(kw.clone())
+                        } else {
+                            Ok(Token::Ident(s))
+                        }
                     } else {
                         continue;
                     }
