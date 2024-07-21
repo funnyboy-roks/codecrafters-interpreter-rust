@@ -202,6 +202,7 @@ impl Lexer {
                             }
                         } else {
                             eprintln!("[line {}] Error: Unterminated string.", self.line);
+                            self.error = true;
                             continue 'main_lex;
                         }
                     }
