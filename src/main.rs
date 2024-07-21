@@ -91,7 +91,7 @@ impl Display for Token {
 
         let literal = match self {
             Token::String(s) => s.to_string(),
-            Token::Number(_, s) => s.to_string(),
+            Token::Number(n, _) => format!("{:?}", n),
             _ => "null".to_string(),
         };
 
