@@ -111,6 +111,7 @@ impl Token {
             Token::While => "WHILE",
         }
     }
+
     fn lexeme(&self) -> String {
         match self {
             Token::EOF => "".to_string(),
@@ -136,6 +137,50 @@ impl Token {
             Token::GreaterEqual => ">=".to_string(),
             Token::Slash => "/".to_string(),
             Token::Number(_, s) => s.to_string(),
+            Token::And => "and".to_string(),
+            Token::Class => "class".to_string(),
+            Token::Else => "else".to_string(),
+            Token::False => "false".to_string(),
+            Token::For => "for".to_string(),
+            Token::Fun => "fun".to_string(),
+            Token::If => "if".to_string(),
+            Token::Nil => "nil".to_string(),
+            Token::Or => "or".to_string(),
+            Token::Print => "print".to_string(),
+            Token::Return => "return".to_string(),
+            Token::Super => "super".to_string(),
+            Token::This => "this".to_string(),
+            Token::True => "true".to_string(),
+            Token::Var => "var".to_string(),
+            Token::While => "while".to_string(),
+        }
+    }
+
+    fn tok_print(&self) -> String {
+        match self {
+            Token::EOF => "".to_string(),
+            Token::LParen => "(".to_string(),
+            Token::RParen => ")".to_string(),
+            Token::LBrace => "{".to_string(),
+            Token::RBrace => "}".to_string(),
+            Token::Ident(s) => s.to_string(),
+            Token::String(s) => format!(r#""{}""#, s),
+            Token::Semicolon => ";".to_string(),
+            Token::Star => "*".to_string(),
+            Token::Dot => ".".to_string(),
+            Token::Comma => ",".to_string(),
+            Token::Plus => "+".to_string(),
+            Token::Minus => "-".to_string(),
+            Token::Equal => "=".to_string(),
+            Token::EqualEqual => "==".to_string(),
+            Token::Bang => "!".to_string(),
+            Token::BangEqual => "!=".to_string(),
+            Token::Less => "<".to_string(),
+            Token::LessEqual => "<=".to_string(),
+            Token::Greater => ">".to_string(),
+            Token::GreaterEqual => ">=".to_string(),
+            Token::Slash => "/".to_string(),
+            Token::Number(n, _) => format!("{:?}", n),
             Token::And => "and".to_string(),
             Token::Class => "class".to_string(),
             Token::Else => "else".to_string(),
@@ -415,7 +460,7 @@ fn main() -> anyhow::Result<()> {
         }
         "parse" => {
             for tok in &mut lexer.filter(|m| !matches!(m, Token::EOF)) {
-                println!("{}", tok.lexeme());
+                println!("{}", tok.tok_print());
             }
         }
         _ => {
