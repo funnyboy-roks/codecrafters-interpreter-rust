@@ -30,6 +30,7 @@ enum Token {
     Greater,
     GreaterEqual,
     Slash,
+    Number(f64, String),
 }
 
 impl Display for Token {
@@ -58,6 +59,7 @@ impl Display for Token {
             Token::Greater => "GREATER",
             Token::GreaterEqual => "GREATER_EQUAL",
             Token::Slash => "SLASH",
+            Token::Number(_, _) => "NUMBER",
         };
 
         let lexeme = match self {
@@ -84,10 +86,12 @@ impl Display for Token {
             Token::Greater => ">".to_string(),
             Token::GreaterEqual => ">=".to_string(),
             Token::Slash => "/".to_string(),
+            Token::Number(n, _) => format!("{}", n),
         };
 
         let literal = match self {
             Token::String(s) => s.to_string(),
+            Token::Number(_, s) => s.to_string(),
             _ => "null".to_string(),
         };
 
@@ -130,6 +134,28 @@ impl Lexer {
         let out = self.peek_char();
         self.index += 1;
         out
+    }
+
+    fn read_number(&mut self) -> Option<String> {
+        let start = self.index;
+        loop {
+            if let Some(c) = self.peek_char() {
+                if matches!(c, '0'..='9' | '.') {
+                    self.read_char();
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+
+        if start == self.index {
+            None
+        } else {
+            let chars = &self.string[start..self.index];
+            Some(chars.iter().collect())
+        }
     }
 
     fn read_token(&mut self) -> anyhow::Result<Token> {
@@ -209,6 +235,14 @@ impl Lexer {
                     let chars = &self.string[start..self.index - 1];
 
                     Ok(Token::String(chars.iter().collect()))
+                }
+                '0'..='9' => {
+                    self.index -= 1;
+                    if let Some(num) = self.read_number() {
+                        Ok(Token::Number(num.parse()?, num))
+                    } else {
+                        continue;
+                    }
                 }
                 '\n' => {
                     self.line += 1;
