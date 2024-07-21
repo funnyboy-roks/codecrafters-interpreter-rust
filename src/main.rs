@@ -198,6 +198,9 @@ impl Lexer {
                     self.column = 0;
                     continue;
                 }
+                whitespace if whitespace.is_whitespace() => {
+                    continue;
+                }
                 _ => {
                     eprintln!("[line {}] Error: Unexpected character: {}", self.line, c);
                     self.error = true;
