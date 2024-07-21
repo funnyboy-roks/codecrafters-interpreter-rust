@@ -133,7 +133,7 @@ impl Lexer {
     }
 
     fn read_token(&mut self) -> anyhow::Result<Token> {
-        loop {
+        'main_lex: loop {
             let Some(c) = self.read_char() else {
                 self.done = true;
                 return Ok(Token::EOF);
@@ -202,7 +202,7 @@ impl Lexer {
                             }
                         } else {
                             eprintln!("[line {}] Error: Unterminated string.", self.line);
-                            continue;
+                            continue 'main_lex;
                         }
                     }
                     let chars = &self.string[start..self.index - 1];
