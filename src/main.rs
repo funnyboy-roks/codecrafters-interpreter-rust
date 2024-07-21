@@ -191,7 +191,7 @@ impl Lexer {
                         self.line += 1;
                         continue;
                     }
-                    _ => Token::Greater,
+                    _ => Token::Slash,
                 }),
                 '\n' => {
                     self.line += 1;
