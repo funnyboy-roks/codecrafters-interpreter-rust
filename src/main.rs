@@ -157,6 +157,9 @@ impl Lexer {
         if start == self.index {
             None
         } else {
+            if self.string[self.index - 1] == '.' {
+                self.index -= 1;
+            }
             let chars = &self.string[start..self.index];
             Some(chars.iter().collect())
         }
