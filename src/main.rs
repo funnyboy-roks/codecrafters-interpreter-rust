@@ -86,7 +86,7 @@ impl Display for Token {
             Token::Greater => ">".to_string(),
             Token::GreaterEqual => ">=".to_string(),
             Token::Slash => "/".to_string(),
-            Token::Number(n, _) => format!("{}", n),
+            Token::Number(_, s) => s.to_string(),
         };
 
         let literal = match self {
