@@ -138,10 +138,14 @@ impl Lexer {
 
     fn read_number(&mut self) -> Option<String> {
         let start = self.index;
+        let mut had_dot = false;
         loop {
             if let Some(c) = self.peek_char() {
-                if matches!(c, '0'..='9' | '.') {
+                if matches!(c, '0'..='9') {
                     self.read_char();
+                } else if c == '.' && !had_dot {
+                    self.read_char();
+                    had_dot = true;
                 } else {
                     break;
                 }
