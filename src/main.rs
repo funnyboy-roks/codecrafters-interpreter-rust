@@ -164,7 +164,7 @@ impl Token {
             Token::LBrace => "{".to_string(),
             Token::RBrace => "}".to_string(),
             Token::Ident(s) => s.to_string(),
-            Token::String(s) => format!(r#""{}""#, s),
+            Token::String(s) => format!("{}", s),
             Token::Semicolon => ";".to_string(),
             Token::Star => "*".to_string(),
             Token::Dot => ".".to_string(),
